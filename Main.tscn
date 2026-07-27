@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://ue776clglnjq"]
 
 [ext_resource type="Script" uid="uid://b5meryrca8j7x" path="res://scripts/Main.gd" id="1"]
-[ext_resource type="Script" uid="uid://cut8kwey6mdy6" path="res://scripts/Character.gd" id="2"]
-[ext_resource type="PackedScene" uid="uid://cnhvaueiaa7m2" path="res://assets/character/characterMedium.fbx" id="3"]
 [ext_resource type="PackedScene" uid="uid://bxtgxuaqidgit" path="res://breakdance_footwork_2.tscn" id="4_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://d3vi7duan1qud" path="res://assets/models/crate/CheeseBox_01_1k.gltf" id="5_crate"]
 [ext_resource type="PackedScene" uid="uid://cv2mnt1xmp8xj" path="res://assets/models/rock/rock_09_1k.gltf" id="6_rock"]
 [ext_resource type="PackedScene" uid="uid://d0y0vtoeiwtf0" path="res://1.tscn" id="7_lgr22"]
+[ext_resource type="PackedScene" path="res://Player.tscn" id="8_player"]
+[ext_resource type="Script" path="res://scripts/CameraRig.gd" id="9_camrig"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat1"]
 sky_top_color = Color(0.55, 0.72, 0.78, 1)
@@ -49,9 +49,29 @@ roughness = 0.18
 
 [sub_resource type="WorldBoundaryShape3D" id="GroundShape"]
 
-[sub_resource type="CapsuleShape3D" id="PlayerCapsule"]
-radius = 0.3
-height = 1.7
+[sub_resource type="QuadMesh" id="MoteMesh"]
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="MoteMat"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.95, 0.9, 0.7, 0.5)
+emission_enabled = true
+emission = Color(0.95, 0.9, 0.6, 1)
+emission_energy_multiplier = 0.8
+billboard_mode = 3
+
+[sub_resource type="ParticleProcessMaterial" id="MoteProcess"]
+direction = Vector3(0, 1, 0)
+spread = 20.0
+initial_velocity_min = 0.05
+initial_velocity_max = 0.15
+gravity = Vector3(0, 0.03, 0)
+scale_min = 0.6
+scale_max = 1.4
+color = Color(0.95, 0.9, 0.7, 0.5)
+emission_shape = 1
+emission_sphere_radius = 5.0
 
 [sub_resource type="StyleBoxFlat" id="ButtonStyle"]
 bg_color = Color(0.11, 0.14, 0.19, 1)
@@ -89,17 +109,8 @@ surface_material_override/0 = SubResource("PedestalMat")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 mesh = SubResource("BoxMesh1")
 
-[node name="Character" type="CharacterBody3D" parent="." unique_id=530692892]
+[node name="Character" parent="." instance=ExtResource("8_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0, 0.8)
-script = ExtResource("2")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Character"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
-shape = SubResource("PlayerCapsule")
-
-[node name="Model" parent="Character" unique_id=292920163 instance=ExtResource("3")]
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Character/Model" unique_id=415673214]
 
 [node name="PbrSphere" type="MeshInstance3D" parent="." unique_id=841798807]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 1, 0.5)
@@ -116,8 +127,18 @@ transform = Transform3D(0.47681728, 0, -0.13006571, 0, 0.5, 0, 0.13006571, 0, 0.
 
 [node name="VoicePlayer" type="AudioStreamPlayer" parent="." unique_id=2050133697]
 
+[node name="AmbientParticles" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+material_override = SubResource("MoteMat")
+amount = 60
+lifetime = 10.0
+preprocess = 10.0
+process_material = SubResource("MoteProcess")
+draw_pass_1 = SubResource("MoteMesh")
+
 [node name="CameraYaw" type="Node3D" parent="." unique_id=1763457859]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+script = ExtResource("9_camrig")
 
 [node name="CameraPitch" type="Node3D" parent="CameraYaw" unique_id=76565883]
 transform = Transform3D(1, 0, 0, 0, 0.9945219, 0.104528464, 0, -0.104528464, 0.9945219, 0, 0, 0)

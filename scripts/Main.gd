@@ -1,12 +1,6 @@
 extends Node3D
 
 @onready var top_box: MeshInstance3D = $TopBox
-@onready var camera_yaw: Node3D = $CameraYaw
-@onready var camera_pitch: Node3D = $CameraYaw/CameraPitch
-@onready var character: Node3D = $Character
-
-const CAMERA_FOLLOW_HEIGHT := 1.4
-const CAMERA_FOLLOW_SPEED := 5.0
 
 @onready var play_pause_button: Button = $UI/HBoxContainer/PlayPauseButton
 @onready var green_box_button: Button = $UI/HBoxContainer/GreenBoxButton
@@ -19,9 +13,6 @@ const CAMERA_FOLLOW_SPEED := 5.0
 
 var is_rotating := true
 var rotation_speed := 1.0
-var dragging := false
-var mouse_sensitivity := 0.005
-var pitch_limit := deg_to_rad(80)
 
 var red_material := StandardMaterial3D.new()
 var green_material := StandardMaterial3D.new()
@@ -36,9 +27,6 @@ func _ready() -> void:
 	green_material.albedo_color = Color(0.15, 0.5, 0.18)
 	top_box.material_override = red_material
 
-	TranslationServer.add_translation(load("res://localization/strings.en.translation"))
-	TranslationServer.add_translation(load("res://localization/strings.pl.translation"))
-	TranslationServer.set_locale("en")
 	_refresh_ui_text()
 
 	play_pause_button.pressed.connect(_on_play_pause_pressed)
@@ -55,17 +43,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_rotating:
 		top_box.rotate_y(delta * rotation_speed)
-
-	var target: Vector3 = character.global_position + Vector3(0, CAMERA_FOLLOW_HEIGHT, 0)
-	camera_yaw.global_position = camera_yaw.global_position.lerp(target, CAMERA_FOLLOW_SPEED * delta)
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		dragging = event.pressed
-	elif event is InputEventMouseMotion and dragging:
-		camera_yaw.rotate_y(-event.relative.x * mouse_sensitivity)
-		var new_pitch: float = camera_pitch.rotation.x - event.relative.y * mouse_sensitivity
-		camera_pitch.rotation.x = clamp(new_pitch, -pitch_limit, pitch_limit)
 
 func _on_play_pause_pressed() -> void:
 	is_rotating = not is_rotating
