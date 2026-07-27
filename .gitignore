@@ -1,3 +1,6 @@
+# Claude Code internal state
+.claude/
+
 # Godot 4+ editor cache/import artifacts
 .godot/
 
