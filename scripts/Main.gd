@@ -5,8 +5,12 @@ extends Node3D
 @onready var play_pause_button: Button = $UI/HBoxContainer/PlayPauseButton
 @onready var green_box_button: Button = $UI/HBoxContainer/GreenBoxButton
 @onready var red_box_button: Button = $UI/HBoxContainer/RedBoxButton
+@onready var spawn_dancers_button: Button = $UI/HBoxContainer/SpawnDancersButton
 @onready var lang_en_button: Button = $UI/LangBox/LangEnButton
 @onready var lang_pl_button: Button = $UI/LangBox/LangPlButton
+
+const DANCER_SCENE := preload("res://breakdance_footwork_2.tscn")
+const DANCERS_PER_SPAWN := 10
 
 @onready var sfx_player: AudioStreamPlayer = $SfxPlayer
 @onready var voice_player: AudioStreamPlayer = $VoicePlayer
@@ -32,10 +36,11 @@ func _ready() -> void:
 	play_pause_button.pressed.connect(_on_play_pause_pressed)
 	green_box_button.pressed.connect(_on_green_pressed)
 	red_box_button.pressed.connect(_on_red_pressed)
+	spawn_dancers_button.pressed.connect(_on_spawn_dancers_pressed)
 	lang_en_button.pressed.connect(_on_lang_pressed.bind("en"))
 	lang_pl_button.pressed.connect(_on_lang_pressed.bind("pl"))
 
-	for button in [play_pause_button, green_box_button, red_box_button, lang_en_button, lang_pl_button]:
+	for button in [play_pause_button, green_box_button, red_box_button, spawn_dancers_button, lang_en_button, lang_pl_button]:
 		button.pressed.connect(_play_click_sfx)
 
 	sfx_player.stream = load("res://assets/audio/click.ogg")
@@ -53,6 +58,13 @@ func _on_green_pressed() -> void:
 func _on_red_pressed() -> void:
 	top_box.material_override = red_material
 
+func _on_spawn_dancers_pressed() -> void:
+	for i in range(DANCERS_PER_SPAWN):
+		var dancer: Node3D = DANCER_SCENE.instantiate()
+		add_child(dancer, true)
+		dancer.position = Vector3(randf_range(-7.0, 7.0), 0.0, randf_range(-6.0, 4.0))
+		dancer.rotation.y = randf_range(0.0, TAU)
+
 func _on_lang_pressed(locale: String) -> void:
 	TranslationServer.set_locale(locale)
 	_refresh_ui_text()
@@ -66,3 +78,4 @@ func _refresh_ui_text() -> void:
 	play_pause_button.text = tr("PLAY_PAUSE")
 	green_box_button.text = tr("GREEN_BOX")
 	red_box_button.text = tr("RED_BOX")
+	spawn_dancers_button.text = tr("SPAWN_DANCERS")

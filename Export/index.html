@@ -2,10 +2,115 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=TestWebDeploy.html">
 <title>TestWebDeploy</title>
+<style>
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		background: #1a1f29;
+		color: #f0f0f0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		min-height: 100vh;
+		padding: 20px;
+	}
+	h1 {
+		margin: 0 0 4px 0;
+		font-size: 1.4rem;
+	}
+	p.subtitle {
+		margin: 0 0 16px 0;
+		color: #9aa5b1;
+		font-size: 0.9rem;
+	}
+	.controls {
+		display: flex;
+		gap: 10px;
+		margin-bottom: 16px;
+		flex-wrap: wrap;
+		justify-content: center;
+		max-width: 1280px;
+	}
+	.controls .group {
+		display: flex;
+		gap: 8px;
+		padding: 6px;
+		border: 1px solid #2a3441;
+		border-radius: 10px;
+	}
+	button {
+		background: #1c2530;
+		color: #fff;
+		border: 1px solid #33404f;
+		border-radius: 6px;
+		padding: 10px 16px;
+		cursor: pointer;
+		font-size: 14px;
+	}
+	button:hover { background: #28323f; }
+	button:active { background: #333f4e; }
+	.frame-wrap {
+		width: 100%;
+		max-width: 1280px;
+		aspect-ratio: 16 / 9;
+		background: #000;
+		border-radius: 8px;
+		overflow: hidden;
+		border: 1px solid #2a3441;
+	}
+	iframe {
+		border: none;
+		width: 100%;
+		height: 100%;
+	}
+	.hint {
+		margin-top: 12px;
+		color: #6b7686;
+		font-size: 0.8rem;
+		text-align: center;
+	}
+</style>
 </head>
 <body>
-<p>Redirecting to <a href="TestWebDeploy.html">TestWebDeploy.html</a>...</p>
+
+<h1>Godot Web Export Showcase</h1>
+<p class="subtitle">External controls (below) drive the embedded game live, via JavaScriptBridge.</p>
+
+<div class="controls">
+	<div class="group">
+		<button onclick="callGame('gameSetBoxGreen')">Green Cube</button>
+		<button onclick="callGame('gameSetBoxRed')">Red Cube</button>
+		<button onclick="callGame('gameTogglePlayPause')">Play/Pause Cube</button>
+	</div>
+	<div class="group">
+		<button onclick="callGame('gameCycleCamera')">Cycle Camera</button>
+		<button onclick="callGame('gameNextScene')">Next Scene</button>
+	</div>
+	<div class="group">
+		<button onclick="callGame('gameSetLanguageEn')">EN</button>
+		<button onclick="callGame('gameSetLanguagePl')">PL</button>
+	</div>
+</div>
+
+<div class="frame-wrap">
+	<iframe id="gameFrame" src="TestWebDeploy.html" allow="autoplay" title="Godot game"></iframe>
+</div>
+
+<p class="hint">Buttons only work once the game has finished loading inside the frame.</p>
+
+<script>
+function callGame(fnName, ...args) {
+	var frame = document.getElementById('gameFrame');
+	var win = frame && frame.contentWindow;
+	if (win && typeof win[fnName] === 'function') {
+		win[fnName](args);
+	} else {
+		console.warn('Game bridge function not ready yet:', fnName);
+	}
+}
+</script>
+
 </body>
 </html>
