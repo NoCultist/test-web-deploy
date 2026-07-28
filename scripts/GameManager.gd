@@ -4,6 +4,7 @@ const SCENES := ["res://Main.tscn", "res://Scene2.tscn"]
 
 var current_index := 0
 var next_scene_button: Button
+var fullscreen_button: Button
 var perf_label: Label
 var _js_callbacks := []
 
@@ -23,16 +24,30 @@ func _ready() -> void:
 	style.corner_radius_bottom_right = 6
 	style.corner_radius_bottom_left = 6
 
+	var top_left_box := HBoxContainer.new()
+	top_left_box.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	top_left_box.position = Vector2(16, 16)
+	top_left_box.add_theme_constant_override("separation", 10)
+	canvas.add_child(top_left_box)
+
 	var button := Button.new()
 	button.name = "NextSceneButton"
 	button.custom_minimum_size = Vector2(140, 40)
 	button.add_theme_stylebox_override("normal", style)
 	button.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	button.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	button.position = Vector2(16, 16)
-	canvas.add_child(button)
+	top_left_box.add_child(button)
 	button.pressed.connect(_on_next_scene_pressed)
 	next_scene_button = button
+
+	var fs_button := Button.new()
+	fs_button.name = "FullscreenButton"
+	fs_button.custom_minimum_size = Vector2(140, 40)
+	fs_button.add_theme_stylebox_override("normal", style)
+	fs_button.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	top_left_box.add_child(fs_button)
+	fs_button.pressed.connect(_on_fullscreen_pressed)
+	fullscreen_button = fs_button
+
 	_refresh_button()
 
 	perf_label = Label.new()
@@ -119,7 +134,15 @@ func _notification(what: int) -> void:
 
 func _refresh_button() -> void:
 	next_scene_button.text = tr("NEXT_SCENE")
+	fullscreen_button.text = tr("FULLSCREEN")
 
 func _on_next_scene_pressed() -> void:
 	current_index = (current_index + 1) % SCENES.size()
 	get_tree().change_scene_to_file(SCENES[current_index])
+
+func _on_fullscreen_pressed() -> void:
+	var mode := DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
