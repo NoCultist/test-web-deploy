@@ -112,5 +112,47 @@ function callGame(fnName, ...args) {
 }
 </script>
 
+<!-- Multiplayer position sync via Firebase Realtime Database. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+	apiKey: "AIzaSyAIHKweVYMzjVrHKMsyPZkRs0UPMHTRs80",
+	authDomain: "test-web-deploy-41186.firebaseapp.com",
+	databaseURL: "https://test-web-deploy-41186-default-rtdb.europe-west1.firebasedatabase.app",
+	projectId: "test-web-deploy-41186",
+	storageBucket: "test-web-deploy-41186.firebasestorage.app",
+	messagingSenderId: "1023177315619",
+	appId: "1:1023177315619:web:90e40575840f5aaf81a896"
+};
+firebase.initializeApp(firebaseConfig);
+
+const mpMyId = 'p' + Math.random().toString(36).slice(2, 10);
+const mpPlayersRef = firebase.database().ref('players');
+const mpMyRef = mpPlayersRef.child(mpMyId);
+mpMyRef.onDisconnect().remove();
+
+let mpLatestPlayers = {};
+mpPlayersRef.on('value', (snap) => {
+	mpLatestPlayers = snap.val() || {};
+});
+
+window.mpUpdate = function (x, y, z, ry) {
+	mpMyRef.set({ x: x, y: y, z: z, ry: ry, t: Date.now() });
+};
+
+window.mpGetPlayersJSON = function () {
+	const now = Date.now();
+	const out = {};
+	for (const id in mpLatestPlayers) {
+		if (id === mpMyId) continue;
+		const p = mpLatestPlayers[id];
+		if (!p || now - p.t > 8000) continue; // drop stale/disconnected entries
+		out[id] = p;
+	}
+	return JSON.stringify(out);
+};
+</script>
+
 </body>
 </html>

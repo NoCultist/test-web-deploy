@@ -23,6 +23,7 @@ window/stretch/aspect="expand"
 [autoload]
 
 GameManager="*res://scripts/GameManager.gd"
+MultiplayerSync="*res://scripts/MultiplayerSync.gd"
 
 [dotnet]
 
