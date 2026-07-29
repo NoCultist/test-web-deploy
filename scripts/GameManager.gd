@@ -6,7 +6,11 @@ var current_index := 0
 var next_scene_button: Button
 var fullscreen_button: Button
 var perf_label: Label
+var chat_log: RichTextLabel
+var chat_input: LineEdit
 var _js_callbacks := []
+var _chat_poll_timer := 0.0
+var _last_chat_count := 0
 
 func _ready() -> void:
 	TranslationServer.add_translation(load("res://localization/strings.en.translation"))
@@ -49,6 +53,40 @@ func _ready() -> void:
 	fullscreen_button = fs_button
 
 	_refresh_button()
+
+	var chat_panel := PanelContainer.new()
+	chat_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	chat_panel.position = Vector2(16, 70)
+	var chat_panel_style := StyleBoxFlat.new()
+	chat_panel_style.bg_color = Color(0.08, 0.1, 0.14, 0.85)
+	chat_panel_style.corner_radius_top_left = 6
+	chat_panel_style.corner_radius_top_right = 6
+	chat_panel_style.corner_radius_bottom_right = 6
+	chat_panel_style.corner_radius_bottom_left = 6
+	chat_panel_style.content_margin_left = 8
+	chat_panel_style.content_margin_right = 8
+	chat_panel_style.content_margin_top = 6
+	chat_panel_style.content_margin_bottom = 6
+	chat_panel.add_theme_stylebox_override("panel", chat_panel_style)
+	canvas.add_child(chat_panel)
+
+	var chat_vbox := VBoxContainer.new()
+	chat_panel.add_child(chat_vbox)
+
+	chat_log = RichTextLabel.new()
+	chat_log.custom_minimum_size = Vector2(300, 150)
+	chat_log.scroll_following = true
+	chat_log.bbcode_enabled = true
+	chat_log.add_theme_color_override("default_color", Color(1, 1, 1, 1))
+	chat_log.add_theme_font_size_override("normal_font_size", 13)
+	chat_vbox.add_child(chat_log)
+
+	chat_input = LineEdit.new()
+	chat_input.placeholder_text = "Type message, Enter to send..."
+	chat_input.custom_minimum_size = Vector2(300, 32)
+	chat_input.max_length = 200
+	chat_input.text_submitted.connect(_on_chat_submitted)
+	chat_vbox.add_child(chat_input)
 
 	perf_label = Label.new()
 	perf_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.5, 1))
@@ -122,11 +160,45 @@ func _js_cycle_camera(_args: Array) -> void:
 	if rigs.size() > 0 and rigs[0].has_method("_cycle_preset"):
 		rigs[0].call("_cycle_preset")
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var fps := Engine.get_frames_per_second()
 	var frame_ms := (1000.0 / fps) if fps > 0 else 0.0
 	var mem_mb := OS.get_static_memory_usage() / 1048576.0
 	perf_label.text = "FPS: %d\nFrame: %.1f ms\nMem: %.1f MB" % [fps, frame_ms, mem_mb]
+
+	if OS.has_feature("web"):
+		_chat_poll_timer += delta
+		if _chat_poll_timer >= 0.5:
+			_chat_poll_timer = 0.0
+			_poll_chat()
+
+func _on_chat_submitted(text: String) -> void:
+	text = text.strip_edges()
+	chat_input.text = ""
+	if text.is_empty() or not OS.has_feature("web"):
+		return
+	var escaped := text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ")
+	var code := "if (window.parent.mpSendChat) window.parent.mpSendChat('%s');" % escaped
+	JavaScriptBridge.eval(code, true)
+
+func _poll_chat() -> void:
+	var result = JavaScriptBridge.eval(
+		"(window.parent.mpGetChatJSON ? window.parent.mpGetChatJSON() : '[]')", true
+	)
+	if typeof(result) != TYPE_STRING:
+		return
+	var parsed = JSON.parse_string(result)
+	if typeof(parsed) != TYPE_ARRAY:
+		return
+	if parsed.size() == _last_chat_count:
+		return
+	_last_chat_count = parsed.size()
+	chat_log.clear()
+	for msg in parsed:
+		var id: String = str(msg.get("id", "?"))
+		var text: String = str(msg.get("text", "")).replace("[", "[lb]")
+		var short_id := id.substr(0, 6)
+		chat_log.append_text("[color=#8ab4ff]%s:[/color] %s\n" % [short_id, text])
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and next_scene_button:

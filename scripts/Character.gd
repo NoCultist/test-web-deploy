@@ -12,17 +12,21 @@ const TURN_SPEED := 10.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var current_anim_state := ""
 var was_on_floor := true
+var skin_material: StandardMaterial3D
 
 func _ready() -> void:
 	add_to_group("player")
 
-	var skin := StandardMaterial3D.new()
-	skin.albedo_texture = load("res://assets/character/humanMaleA.png")
-	skin.roughness = 0.9
-	mesh_instance.material_override = skin
+	skin_material = StandardMaterial3D.new()
+	skin_material.albedo_texture = load("res://assets/character/humanMaleA.png")
+	skin_material.roughness = 0.9
+	mesh_instance.material_override = skin_material
 
 	CharacterAnimHelper.load_animations(anim_player)
 	_play_anim("idle")
+
+func set_custom_skin(tex: Texture2D) -> void:
+	skin_material.albedo_texture = tex
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
