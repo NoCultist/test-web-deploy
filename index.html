@@ -167,10 +167,31 @@ mpChatRef.limitToLast(50).on('value', (snap) => {
 	mpLatestChat = list;
 });
 
+const CHAT_RETENTION = 50;
+
 window.mpSendChat = function (text) {
 	if (!text) return;
 	text = String(text).slice(0, 200);
 	mpChatRef.push({ id: mpMyId, text: text, t: Date.now() });
+	// limitToLast() above only bounds what's *read* - Firebase keeps every
+	// message ever pushed forever otherwise. Since there's no backend to run
+	// scheduled cleanup, whoever sends a message also trims stored history
+	// beyond the retention window (distributed janitor pattern).
+	mpChatRef.once('value').then((snap) => {
+		const keys = [];
+		// Array.push() body must be braced: push() returns the new length (a
+		// truthy number), and DataSnapshot.forEach() cancels iteration early
+		// on any truthy callback return - an unbraced arrow here silently
+		// stops after the very first child.
+		snap.forEach((child) => { keys.push(child.key); });
+		keys.sort(); // push() keys are lexicographically chronological
+		const excess = keys.length - CHAT_RETENTION;
+		if (excess > 0) {
+			const updates = {};
+			for (let i = 0; i < excess; i++) updates[keys[i]] = null;
+			mpChatRef.update(updates);
+		}
+	});
 };
 
 window.mpGetChatJSON = function () {
@@ -200,7 +221,9 @@ document.getElementById('skinUpload').addEventListener('change', function (e) {
 			ctx.drawImage(img, 0, 0, 256, 256);
 			const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
 			window.mpMySkin = dataUrl;
-			mpSkinsRef.child(mpMyId).set(dataUrl);
+			// Stored with a timestamp (unlike the raw string before) so stale
+			// entries can be detected even if onDisconnect never fires.
+			mpSkinsRef.child(mpMyId).set({ data: dataUrl, t: Date.now() });
 		};
 		img.src = ev.target.result;
 	};
@@ -212,8 +235,38 @@ window.mpGetMySkin = function () {
 };
 
 window.mpGetSkinsJSON = function () {
-	return JSON.stringify(mpLatestSkins);
+	// Unwrap to plain {id: dataUrl}, same shape as before, so the Godot side
+	// needs no changes. Skip anything whose owner isn't an active player.
+	const now = Date.now();
+	const out = {};
+	for (const id in mpLatestSkins) {
+		const entry = mpLatestSkins[id];
+		if (!entry || !entry.data) continue;
+		const owner = mpLatestPlayers[id];
+		const ownerActive = id === mpMyId || (owner && now - owner.t <= 8000);
+		if (!ownerActive) continue;
+		out[id] = entry.data;
+	}
+	return JSON.stringify(out);
 };
+
+const SKIN_GC_INTERVAL_MS = 15000;
+const SKIN_MAX_AGE_MS = 5 * 60 * 1000; // absolute safety net regardless of player state
+
+setInterval(() => {
+	const now = Date.now();
+	for (const id in mpLatestSkins) {
+		if (id === mpMyId) continue;
+		const entry = mpLatestSkins[id];
+		if (!entry) continue;
+		const owner = mpLatestPlayers[id];
+		const ownerGone = !owner || now - owner.t > 8000;
+		const tooOld = !entry.t || now - entry.t > SKIN_MAX_AGE_MS;
+		if (ownerGone || tooOld) {
+			mpSkinsRef.child(id).remove();
+		}
+	}
+}, SKIN_GC_INTERVAL_MS);
 </script>
 
 </body>
