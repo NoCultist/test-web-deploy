@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bxtgxuaqidgit"]
 
-[ext_resource type="PackedScene" uid="uid://3o5spx5jo032" path="res://Breakdance Footwork 2.fbx" id="1_0wxoe"]
+[ext_resource type="PackedScene" uid="uid://3o5spx5jo032" path="res://assets/character/breakdance/Breakdance Footwork 2.fbx" id="1_0wxoe"]
 [ext_resource type="Script" path="res://scripts/MixamoAutoplay.gd" id="2_autoplay"]
 
 [node name="Breakdance Footwork 2" unique_id=738036532 instance=ExtResource("1_0wxoe")]

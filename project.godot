@@ -15,15 +15,19 @@ run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+WebBridge="*res://scripts/autoload/WebBridge.gd"
+Localization="*res://scripts/autoload/Localization.gd"
+SceneRouter="*res://scripts/autoload/SceneRouter.gd"
+MultiplayerService="*res://scripts/autoload/MultiplayerService.gd"
+RemotePlayerManager="*res://scripts/autoload/RemotePlayerManager.gd"
+PersistentHud="*res://ui/PersistentHud.tscn"
+
 [display]
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-
-[autoload]
-
-GameManager="*res://scripts/GameManager.gd"
-MultiplayerSync="*res://scripts/MultiplayerSync.gd"
 
 [dotnet]
 

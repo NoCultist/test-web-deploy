@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://ui/TopLeftControls.tscn" id="1_topleft"]
+[ext_resource type="PackedScene" path="res://ui/ChatPanel.tscn" id="2_chat"]
+[ext_resource type="PackedScene" path="res://ui/PerfOverlay.tscn" id="3_perf"]
+
+[node name="PersistentHud" type="CanvasLayer"]
+layer = 10
+
+[node name="TopLeftControls" parent="." instance=ExtResource("1_topleft")]
+offset_left = 16.0
+offset_top = 16.0
+
+[node name="ChatPanel" parent="." instance=ExtResource("2_chat")]
+offset_left = 16.0
+offset_top = 70.0
+
+[node name="PerfOverlay" parent="." instance=ExtResource("3_perf")]

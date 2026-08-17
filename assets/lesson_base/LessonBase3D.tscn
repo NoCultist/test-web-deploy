@@ -1,0 +1,121 @@
+[gd_scene format=3 uid="uid://d4houcaylso8h"]
+
+[ext_resource type="Script" uid="uid://ovfn0fsqgt6e" path="res://assets/lesson_base/lesson_base_3d.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://0j1f5qi5eax5" path="res://assets/icon_arrow_back.svg" id="2"]
+[ext_resource type="Texture2D" uid="uid://b556a72x21hre" path="res://assets/icon_check_plain.svg" id="3"]
+[ext_resource type="Shader" uid="uid://i3qm0tevd82n" path="res://assets/shaders/sky_white.gdshader" id="4"]
+[ext_resource type="Shader" uid="uid://ca2syekusfg3q" path="res://assets/shaders/checker_floor.gdshader" id="5"]
+[ext_resource type="Script" uid="uid://dbybsvaqy5vh6" path="res://assets/lesson_base/camera_orbit.gd" id="6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMat_Sky"]
+shader = ExtResource("4")
+
+[sub_resource type="Sky" id="Sky_White"]
+sky_material = SubResource("ShaderMat_Sky")
+
+[sub_resource type="Environment" id="Env_White"]
+background_mode = 2
+sky = SubResource("Sky_White")
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.6
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(1, 1, 1, 1)
+fog_density = 1.0
+fog_depth_end = 50.0
+
+[sub_resource type="Gradient" id="Gradient_Fade"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="Tex_Fade"]
+gradient = SubResource("Gradient_Fade")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ShaderMaterial" id="Mat_Ground"]
+render_priority = 0
+shader = ExtResource("5")
+shader_parameter/tile_size = 0.5
+shader_parameter/line_thickness = 0.0075
+shader_parameter/line_color = Color(0, 0, 0, 1)
+shader_parameter/base_color = Color(1, 1, 1, 1)
+shader_parameter/fade_radius = 10.0
+shader_parameter/fade_mask = SubResource("Tex_Fade")
+
+[sub_resource type="PlaneMesh" id="Mesh_Ground"]
+material = SubResource("Mat_Ground")
+size = Vector2(50, 50)
+
+[node name="LessonBase3D" type="Node3D" unique_id=492423741]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1281795379]
+environment = SubResource("Env_White")
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=1225948243]
+visible = false
+script = ExtResource("6")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=1998953097]
+transform = Transform3D(1, 0, 0, 0, 0.9702957, 0.2419219, 0, -0.2419219, 0.9702957, 0, 2.2, 5)
+visible = false
+current = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2080190453]
+transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
+light_energy = 0.32
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=1882721696]
+transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0, 0, 0)
+mesh = SubResource("Mesh_Ground")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=352855026]
+visible = false
+
+[node name="Margin" type="MarginContainer" parent="UI" unique_id=1190276679]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="HeaderRow" type="HBoxContainer" parent="UI/Margin" unique_id=882150833]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackButton" type="Button" parent="UI/Margin/HeaderRow" unique_id=1328861756]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.75, 0.75, 0.78, 1)
+theme_override_font_sizes/font_size = 15
+text = "Back to Lessons"
+icon = ExtResource("2")
+flat = true
+
+[node name="TitleLabel" type="Label" parent="UI/Margin/HeaderRow" unique_id=355793242]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Lesson"
+
+[node name="Spacer" type="Control" parent="UI/Margin/HeaderRow" unique_id=238351193]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CompleteButton" type="Button" parent="UI/Margin/HeaderRow" unique_id=1268360344]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.24, 0.81, 0.56, 1)
+theme_override_font_sizes/font_size = 15
+text = "Complete Lesson"
+icon = ExtResource("3")
+flat = true

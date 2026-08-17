@@ -23,6 +23,7 @@ var tween: Tween
 
 func _ready() -> void:
 	add_to_group("camera_rig")
+	WebBridge.expose("gameCycleCamera", _cycle_preset)
 
 func _process(delta: float) -> void:
 	var players := get_tree().get_nodes_in_group("player")

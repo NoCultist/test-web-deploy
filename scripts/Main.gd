@@ -45,6 +45,11 @@ func _ready() -> void:
 
 	sfx_player.stream = load("res://assets/audio/click.ogg")
 
+	Localization.locale_changed.connect(_on_locale_changed)
+	WebBridge.expose("gameSetBoxGreen", _on_green_pressed)
+	WebBridge.expose("gameSetBoxRed", _on_red_pressed)
+	WebBridge.expose("gameTogglePlayPause", _on_play_pause_pressed)
+
 func _process(delta: float) -> void:
 	if is_rotating:
 		top_box.rotate_y(delta * rotation_speed)
@@ -66,7 +71,9 @@ func _on_spawn_dancers_pressed() -> void:
 		dancer.rotation.y = randf_range(0.0, TAU)
 
 func _on_lang_pressed(locale: String) -> void:
-	TranslationServer.set_locale(locale)
+	Localization.set_locale(locale)
+
+func _on_locale_changed(locale: String) -> void:
 	_refresh_ui_text()
 	voice_player.stream = load(VOICE_CLIPS[locale])
 	voice_player.play()

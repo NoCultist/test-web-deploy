@@ -13,16 +13,17 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9
 var current_anim_state := ""
 var was_on_floor := true
 var skin_material: StandardMaterial3D
+var anim_tree: AnimationTree
+var _blend_position := 0.0
 
 func _ready() -> void:
 	add_to_group("player")
 
-	skin_material = StandardMaterial3D.new()
-	skin_material.albedo_texture = load("res://assets/character/humanMaleA.png")
-	skin_material.roughness = 0.9
+	skin_material = CharacterSkin.create_material()
 	mesh_instance.material_override = skin_material
 
 	CharacterAnimHelper.load_animations(anim_player)
+	anim_tree = CharacterAnimHelper.build_blend_tree(anim_player)
 	_play_anim("idle")
 
 func set_custom_skin(tex: Texture2D) -> void:
@@ -75,6 +76,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		_play_anim("idle")
 
+	_blend_position = CharacterAnimHelper.step_blend(anim_tree, _blend_position, current_anim_state, delta)
+
 func _get_camera_basis() -> Basis:
 	var rigs := get_tree().get_nodes_in_group("camera_rig")
 	if rigs.size() > 0:
@@ -82,7 +85,4 @@ func _get_camera_basis() -> Basis:
 	return global_transform.basis
 
 func _play_anim(anim_name: String) -> void:
-	if anim_name == current_anim_state:
-		return
 	current_anim_state = anim_name
-	anim_player.play(anim_name)

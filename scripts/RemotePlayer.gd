@@ -11,15 +11,15 @@ var target_anim := "idle"
 var current_anim_state := ""
 var _has_target := false
 var skin_material: StandardMaterial3D
+var anim_tree: AnimationTree
+var _blend_position := 0.0
 
 func _ready() -> void:
-	skin_material = StandardMaterial3D.new()
-	skin_material.albedo_texture = load("res://assets/character/humanMaleA.png")
-	skin_material.roughness = 0.9
-	skin_material.albedo_color = Color(0.65, 0.8, 1.0)
+	skin_material = CharacterSkin.create_material(Color(0.65, 0.8, 1.0))
 	mesh_instance.material_override = skin_material
 
 	CharacterAnimHelper.load_animations(anim_player)
+	anim_tree = CharacterAnimHelper.build_blend_tree(anim_player)
 	_play_anim("idle")
 
 func set_custom_skin(tex: Texture2D) -> void:
@@ -39,9 +39,7 @@ func _process(delta: float) -> void:
 	global_position = global_position.lerp(target_position, LERP_SPEED * delta)
 	rotation.y = lerp_angle(rotation.y, target_rotation_y, LERP_SPEED * delta)
 	_play_anim(target_anim)
+	_blend_position = CharacterAnimHelper.step_blend(anim_tree, _blend_position, current_anim_state, delta)
 
 func _play_anim(anim_name: String) -> void:
-	if anim_name == current_anim_state:
-		return
 	current_anim_state = anim_name
-	anim_player.play(anim_name)

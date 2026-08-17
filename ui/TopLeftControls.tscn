@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/TopLeftControls.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="ButtonStyle"]
+bg_color = Color(0.11, 0.14, 0.19, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="TopLeftControls" type="HBoxContainer"]
+theme_override_constants/separation = 10
+script = ExtResource("1_script")
+
+[node name="NextSceneButton" type="Button" parent="."]
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("ButtonStyle")
+text = "Next Scene"
+
+[node name="FullscreenButton" type="Button" parent="."]
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("ButtonStyle")
+text = "Fullscreen"

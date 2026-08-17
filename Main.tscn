@@ -1,12 +1,9 @@
 [gd_scene format=3 uid="uid://ue776clglnjq"]
 
 [ext_resource type="Script" uid="uid://b5meryrca8j7x" path="res://scripts/Main.gd" id="1"]
-[ext_resource type="PackedScene" uid="uid://bxtgxuaqidgit" path="res://breakdance_footwork_2.tscn" id="4_cm0pq"]
-[ext_resource type="PackedScene" uid="uid://d3vi7duan1qud" path="res://assets/models/crate/CheeseBox_01_1k.gltf" id="5_crate"]
-[ext_resource type="PackedScene" uid="uid://cv2mnt1xmp8xj" path="res://assets/models/rock/rock_09_1k.gltf" id="6_rock"]
-[ext_resource type="PackedScene" uid="uid://d0y0vtoeiwtf0" path="res://1.tscn" id="7_lgr22"]
+[ext_resource type="PackedScene" uid="uid://d4houcaylso8h" path="res://assets/lesson_base/LessonBase3D.tscn" id="4_fos0i"]
 [ext_resource type="PackedScene" path="res://Player.tscn" id="8_player"]
-[ext_resource type="Script" path="res://scripts/CameraRig.gd" id="9_camrig"]
+[ext_resource type="Script" uid="uid://dylbdap58ftqm" path="res://scripts/CameraRig.gd" id="9_camrig"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat1"]
 sky_top_color = Color(0.55, 0.72, 0.78, 1)
@@ -21,47 +18,23 @@ sky_material = SubResource("SkyMat1")
 background_mode = 2
 sky = SubResource("Sky1")
 
-[sub_resource type="PlaneMesh" id="GroundMesh"]
-size = Vector2(80, 80)
-
-[sub_resource type="StandardMaterial3D" id="GroundMat"]
-albedo_color = Color(0.32, 0.37, 0.42, 1)
-
-[sub_resource type="BoxMesh" id="PedestalMesh"]
-size = Vector3(1.4, 1.4, 1.4)
-
-[sub_resource type="StandardMaterial3D" id="PedestalMat"]
-albedo_color = Color(0.29, 0.32, 0.25, 1)
-roughness = 0.9
+[sub_resource type="WorldBoundaryShape3D" id="GroundShape"]
 
 [sub_resource type="BoxMesh" id="BoxMesh1"]
 size = Vector3(1.4, 1.6, 1.4)
-
-[sub_resource type="SphereMesh" id="PbrSphereMesh"]
-radius = 0.7
-height = 1.4
-
-[sub_resource type="StandardMaterial3D" id="PbrSphereMat"]
-albedo_color = Color(0.82, 0.58, 0.18, 1)
-metallic = 1.0
-metallic_specular = 0.6
-roughness = 0.18
-
-[sub_resource type="WorldBoundaryShape3D" id="GroundShape"]
-
-[sub_resource type="QuadMesh" id="MoteMesh"]
-size = Vector2(0.05, 0.05)
 
 [sub_resource type="StandardMaterial3D" id="MoteMat"]
 transparency = 1
 shading_mode = 0
 albedo_color = Color(0.95, 0.9, 0.7, 0.5)
-emission_enabled = true
-emission = Color(0.95, 0.9, 0.6, 1)
-emission_energy_multiplier = 0.8
 billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
 
 [sub_resource type="ParticleProcessMaterial" id="MoteProcess"]
+emission_shape = 1
+emission_sphere_radius = 5.0
 direction = Vector3(0, 1, 0)
 spread = 20.0
 initial_velocity_min = 0.05
@@ -70,8 +43,9 @@ gravity = Vector3(0, 0.03, 0)
 scale_min = 0.6
 scale_max = 1.4
 color = Color(0.95, 0.9, 0.7, 0.5)
-emission_shape = 1
-emission_sphere_radius = 5.0
+
+[sub_resource type="QuadMesh" id="MoteMesh"]
+size = Vector2(0.05, 0.05)
 
 [sub_resource type="StyleBoxFlat" id="ButtonStyle"]
 bg_color = Color(0.11, 0.14, 0.19, 1)
@@ -88,53 +62,37 @@ environment = SubResource("Env1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2102018505]
 transform = Transform3D(0.8660254, 0.40957603, -0.28678823, 0, 0.57357645, 0.81915206, 0.5, -0.7094065, 0.49673176, 0, 0, 0)
+visible = false
 light_energy = 0.105
 shadow_enabled = true
 
-[node name="Ground" type="MeshInstance3D" parent="." unique_id=1033556299]
-mesh = SubResource("GroundMesh")
-surface_material_override/0 = SubResource("GroundMat")
+[node name="GroundBody" type="StaticBody3D" parent="." unique_id=2762652]
 
-[node name="GroundBody" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GroundBody"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GroundBody" unique_id=1662482924]
 shape = SubResource("GroundShape")
-
-[node name="Pedestal" type="MeshInstance3D" parent="." unique_id=1951614332]
-transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 0, 0.7, 0)
-mesh = SubResource("PedestalMesh")
-surface_material_override/0 = SubResource("PedestalMat")
 
 [node name="TopBox" type="MeshInstance3D" parent="." unique_id=1291326534]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 mesh = SubResource("BoxMesh1")
 
-[node name="Character" parent="." instance=ExtResource("8_player")]
+[node name="Character" parent="." unique_id=479047123 instance=ExtResource("8_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0, 0.8)
-
-[node name="PbrSphere" type="MeshInstance3D" parent="." unique_id=841798807]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 1, 0.5)
-mesh = SubResource("PbrSphereMesh")
-surface_material_override/0 = SubResource("PbrSphereMat")
-
-[node name="Crate" parent="." unique_id=1649853409 instance=ExtResource("5_crate")]
-transform = Transform3D(14.095806, 0, 5.1291585, 0, 15, 0, -5.1291585, 0, 14.095806, -1.8, -0.02645874, -1.904767)
-
-[node name="Rock" parent="." unique_id=833783601 instance=ExtResource("6_rock")]
-transform = Transform3D(0.47681728, 0, -0.13006571, 0, 0.5, 0, 0.13006571, 0, 0.47681728, 1.9, 0, -1.4)
 
 [node name="SfxPlayer" type="AudioStreamPlayer" parent="." unique_id=1645534760]
 
 [node name="VoicePlayer" type="AudioStreamPlayer" parent="." unique_id=2050133697]
 
-[node name="AmbientParticles" type="GPUParticles3D" parent="."]
+[node name="AmbientParticles" type="GPUParticles3D" parent="." unique_id=2126407990]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+visible = false
 material_override = SubResource("MoteMat")
 amount = 60
 lifetime = 10.0
 preprocess = 10.0
 process_material = SubResource("MoteProcess")
 draw_pass_1 = SubResource("MoteMesh")
+
+[node name="LessonBase3D" parent="." unique_id=492423741 instance=ExtResource("4_fos0i")]
 
 [node name="CameraYaw" type="Node3D" parent="." unique_id=1763457859]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
@@ -166,6 +124,7 @@ theme_override_constants/separation = 12
 [node name="PlayPauseButton" type="Button" parent="UI/HBoxContainer" unique_id=757079952]
 custom_minimum_size = Vector2(110, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "Play/Pause"
@@ -173,6 +132,7 @@ text = "Play/Pause"
 [node name="GreenBoxButton" type="Button" parent="UI/HBoxContainer" unique_id=1329345224]
 custom_minimum_size = Vector2(110, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "Green Box"
@@ -180,13 +140,15 @@ text = "Green Box"
 [node name="RedBoxButton" type="Button" parent="UI/HBoxContainer" unique_id=988613505]
 custom_minimum_size = Vector2(110, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "Red Box"
 
-[node name="SpawnDancersButton" type="Button" parent="UI/HBoxContainer"]
+[node name="SpawnDancersButton" type="Button" parent="UI/HBoxContainer" unique_id=1373631114]
 custom_minimum_size = Vector2(110, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "Spawn Dancers"
@@ -205,6 +167,7 @@ theme_override_constants/separation = 10
 [node name="LangEnButton" type="Button" parent="UI/LangBox" unique_id=782663479]
 custom_minimum_size = Vector2(50, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "EN"
@@ -212,6 +175,7 @@ text = "EN"
 [node name="LangPlButton" type="Button" parent="UI/LangBox" unique_id=508166162]
 custom_minimum_size = Vector2(50, 40)
 layout_mode = 2
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("ButtonStyle")
 text = "PL"
@@ -223,9 +187,3 @@ size_flags_vertical = 4
 max_value = 1.0
 step = 0.01
 value = 0.5
-
-[node name="Breakdance Footwork 2" parent="." unique_id=738036532 instance=ExtResource("4_cm0pq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.11488724, 0, 1.8390126)
-
-[node name="1" parent="." unique_id=291519048 instance=ExtResource("7_lgr22")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.191364, 14.685089, -18.28521)
